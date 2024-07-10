@@ -1,38 +1,59 @@
-void main() {
-  var nums = [3,0,-2,-1,1,2];
+import 'package:collection/collection.dart';
 
-  print('Output: ${threeSum(nums)}');
+void main() {
+  print('Output: ${threeSum2([3, 0, -2, -1, 1, 2])}');
 }
 
+/// passs 308/313 test cases on leetcode because time out exception
 List<List<int>> threeSum(List<int> nums) {
   List<List<int>> result = [];
+  Function listEquality = const ListEquality().equals;
 
-  for (int i = 0; i < nums.length; i++) {
-    var nums1 = nums;
-    print('nums1: $nums1');
-    for (int j = 1; j < nums1.length; j++) {
-    var nums2 = nums1;
-    print('nums2: $nums2');
-      for(int k = 2; k < nums2.length; k++) {
-        if (nums[i] + nums1[j] + nums2[k] == 0) {
-          result.add([nums[i], nums1[j], nums2[k]]);
+  for (int i = 0; i < nums.length - 2; i++) {
+    for (int j = i + 1; j < nums.length - 1; j++) {
+      for (int k = j + 1; k < nums.length; k++) {
+        if (nums[i] + nums[j] + nums[k] == 0) {
+          List<int> temp = [nums[i], nums[j], nums[k]]..sort();
 
-          nums1.remove(nums[i]);
-          nums2.remove(nums[j]);
+          if (!result.any((list) => listEquality(list, temp))) {
+            result.add(temp);
+          }
         }
       }
     }
   }
 
-  List<String> temp =
-      result.map((e) => '${e..sort()}').toList().toSet().toList();
+  return result;
+}
 
-  return List<List<int>>.from(temp
-      .map((e) => e
-          .replaceAll('[', '')
-          .replaceAll(']', '')
-          .split(',')
-          .map((e) => int.parse(e))
-          .toList())
-      .toList());
+/// better solution
+List<List<int>> threeSum2(List<int> nums) {
+  nums.sort();
+  List<List<int>> result = [];
+
+  for (int i = 0; i < nums.length - 2; i++) {
+    if (nums[i] > 0) break;
+    if (i > 0 && nums[i] == nums[i - 1]) continue;
+
+    int left = i + 1;
+    int right = nums.length - 1;
+
+    while (left < right) {
+      int sum = nums[i] + nums[left] + nums[right];
+
+      if (sum == 0) {
+        result.add([nums[i], nums[left], nums[right]]);
+        while (left < right && nums[left] == nums[left + 1]) left++;
+        while (left < right && nums[right] == nums[right - 1]) right--;
+        left++;
+        right--;
+      } else if (sum < 0) {
+        left++;
+      } else {
+        right--;
+      }
+    }
+  }
+
+  return result;
 }
